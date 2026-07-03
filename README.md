@@ -1,2 +1,2 @@
 # NextCloud_Https_Proxy
-NextCloud Https Proxy
+Proxy HTTPS Nextcloud to workarounf firewall and blocking environement.
