@@ -10,6 +10,7 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\Util;
 use OCP\Http\Client\IClientService;
+use OCP\IURLGenerator;
 
 class ProxyController extends Controller {
 
@@ -17,18 +18,19 @@ class ProxyController extends Controller {
         parent::__construct($appName, $request);
     }
 
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
+    /**
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
     public function index(): TemplateResponse {
         Util::addScript('https_proxy', 'script');
         return new TemplateResponse('https_proxy', 'main');
     }
 
     /**
-     * NoCSRFRequired est nécessaire pour la navigation fluide dans l'iframe
+     * @NoAdminRequired
+     * @NoCSRFRequired
      */
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function fetch(string $url): DataDisplayResponse {
         if (empty($url) || !str_starts_with($url, 'http')) {
             return new DataDisplayResponse('URL invalide', 400);
@@ -38,13 +40,13 @@ class ProxyController extends Controller {
             /** @var IClientService $clientService */
             $clientService = \OC::$server->get(IClientService::class);
             $client = $clientService->newClient();
-
+            
             $proxyResponse = $client->get($url, [
                 'timeout' => 15,
                 'connect_timeout' => 5,
                 'allow_redirects' => true
             ]);
-
+            
             $contentType = $proxyResponse->getHeader('Content-Type');
             $body = $proxyResponse->getBody();
 
@@ -52,19 +54,18 @@ class ProxyController extends Controller {
             if (str_contains($contentType, 'text/html')) {
                 $body = $this->rewriteUrls($body, $url);
             }
-
+            
             $response = new DataDisplayResponse(
-                $body,
-                200,
+                $body, 
+                200, 
                 ['Content-Type' => $contentType]
             );
-
-            $response->addHeader('X-Frame-Options', 'ALLOWALL');
+            
+            $response->addHeader('X-Frame-Options', 'ALLOWALL'); 
             $response->addHeader('Content-Security-Policy', "frame-ancestors 'self'");
-
+            
             return $response;
         } catch (\Exception $e) {
-            // Utilisation de DataDisplayResponse ici aussi pour éviter l'erreur de classe manquante
             return new DataDisplayResponse('Erreur proxy : ' . $e->getMessage(), 500);
         }
     }
@@ -78,6 +79,9 @@ class ProxyController extends Controller {
         $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
 
+        /** @var IURLGenerator $urlGenerator */
+        $urlGenerator = \OC::$server->get(IURLGenerator::class);
+
         $parse = parse_url($baseUrl);
         $rootUrl = $parse['scheme'] . '://' . $parse['host'];
 
@@ -87,7 +91,8 @@ class ProxyController extends Controller {
             $href = $link->getAttribute('href');
             if ($href && !str_starts_with($href, '#') && !str_starts_with($href, 'javascript:')) {
                 $newHref = $this->makeAbsolute($href, $baseUrl, $rootUrl);
-                $proxyUrl = \OC::$server->getURLGenerator()->linkToRoute('https_proxy.proxy.fetch', ['url' => $newHref]);
+                // Utilisation de la nouvelle méthode de génération d'URL
+                $proxyUrl = $urlGenerator->linkToRoute('https_proxy.proxy.fetch', ['url' => $newHref]);
                 $link->setAttribute('href', $proxyUrl);
             }
         }
@@ -98,7 +103,7 @@ class ProxyController extends Controller {
             $src = $img->getAttribute('src');
             if ($src) {
                 $newSrc = $this->makeAbsolute($src, $baseUrl, $rootUrl);
-                $proxySrc = \OC::$server->getURLGenerator()->linkToRoute('https_proxy.proxy.fetch', ['url' => $newSrc]);
+                $proxySrc = $urlGenerator->linkToRoute('https_proxy.proxy.fetch', ['url' => $newSrc]);
                 $img->setAttribute('src', $proxySrc);
             }
         }
@@ -110,7 +115,7 @@ class ProxyController extends Controller {
         if (parse_url($rel, PHP_URL_SCHEME) != '') return $rel;
         if (isset($rel[0]) && $rel[0] === '/' && isset($rel[1]) && $rel[1] === '/') return "https:" . $rel;
         if (isset($rel[0]) && $rel[0] === '/') return $rootUrl . $rel;
-
+        
         return rtrim($baseUrl, '/') . '/' . $rel;
     }
 }
