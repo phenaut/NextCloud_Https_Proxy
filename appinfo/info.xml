@@ -12,12 +12,12 @@
     </dependencies>
 
     <navigations>
-	<navigation>
- 		<id>https_proxy</id>
-        	<name>HTTPS Proxy</name>
-        	<route>https_proxy.proxy.index</route>
-        	<icon>app.svg</icon>
-        	<order>10</order>
-	</navigation>
+	    <navigation>
+ 		    <id>https_proxy</id>
+        	    <name>HTTPS Proxy</name>
+        	    <route>https_proxy.proxy.index</route>
+        	    <icon>app.svg</icon>
+        	    <order>10</order>
+	    </navigation>
     </navigations>
 </info>
