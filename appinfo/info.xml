@@ -3,17 +3,21 @@
     <id>https_proxy</id>
     <name>HTTPS Proxy</name>
     <summary>Proxy HTTPS pour Nextcloud</summary>
-    <version>1.2.6</version>
+    <version>1.2.8</version>
     <licence>agpl</licence>
     <author>Artifacto</author>
     <category>tools</category>
     <dependencies>
-        <nextcloud min-version="34" max-version="40"/>
+        <nextcloud min-version="25" max-version="34"/>
     </dependencies>
-    <navigation>
-        <name>HTTPS Proxy</name>
-        <route>https_proxy.proxy.index</route>
-        <icon>app.png</icon>
-        <order>10</order>
-    </navigation>
+
+    <navigations>
+	<navigation>
+ 		<id>https_proxy</id>
+        	<name>HTTPS Proxy</name>
+        	<route>https_proxy.proxy.index</route>
+        	<icon>app.svg</icon>
+        	<order>10</order>
+	</navigation>
+    </navigations>
 </info>
