@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('proxy-btn');
     const input = document.getElementById('proxy-url');
     const frame = document.getElementById('proxy-frame');
+    const backBtn = document.getElementById('proxy-back-btn');
 
     if (!btn || !input || !frame) return;
 
@@ -36,4 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
             loadUrl();
         }
     });
+
+    // Bouton précédent - gère l'historique de l'iframe
+    if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            try {
+                frame.contentWindow.history.back();
+            } catch (err) {
+                console.warn('Impossible de revenir à la page précédente:', err);
+            }
+        });
+    }
 });
