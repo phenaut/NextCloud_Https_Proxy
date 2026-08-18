@@ -53,10 +53,30 @@
         height: 100%;
         border: none;
     }
+
+    #proxy-back-btn {
+        padding: 8px 12px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    #proxy-back-btn:hover {
+        background-color: #e0e0e0;
+    }
+
+    #proxy-back-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
 </style>
 
 <div id="proxy-wrapper">
     <div id="proxy-header">
+        <button id="proxy-back-btn" title="Page précédente">← Précédent</button>
         <label for="proxy-url" style="font-weight: bold;">URL :</label>
         <input type="text" id="proxy-url" placeholder="https://www.wikipedia.org" value="https://www.wikipedia.org">
         <button id="proxy-btn" class="primary">Naviguer</button>
