@@ -1,4 +1,86 @@
-document.addEventListener('DOMContentLoaded', () => {
+/* global OC */
+'use strict';
+
+document.addEventListener('DOMContentLoaded', function () {
+    var urlInput  = document.getElementById('proxy-url');
+    var navBtn    = document.getElementById('proxy-btn');
+    var frame     = document.getElementById('proxy-frame');
+    var backBtn   = document.getElementById('proxy-back');
+    var fwdBtn    = document.getElementById('proxy-fwd');
+    var reloadBtn = document.getElementById('proxy-reload');
+
+    // Historique de navigation interne
+    var navHistory = [];
+    var historyPos = -1;
+
+    function proxyUrl(url) {
+        return OC.generateUrl('/apps/https_proxy/fetch') + '?url=' + encodeURIComponent(url);
+    }
+
+    function navigate(url) {
+        if (!url) return;
+        if (!/^https?:\/\//i.test(url)) {
+            url = 'https://' + url;
+        }
+        // Tronquer l'historique si on navigue depuis un point intermédiaire
+        if (historyPos < navHistory.length - 1) {
+            navHistory = navHistory.slice(0, historyPos + 1);
+        }
+        navHistory.push(url);
+        historyPos++;
+
+        frame.src      = proxyUrl(url);
+        urlInput.value = url;
+        updateNav();
+    }
+
+    function updateNav() {
+        backBtn.disabled   = historyPos <= 0;
+        fwdBtn.disabled    = historyPos >= navHistory.length - 1;
+        reloadBtn.disabled = historyPos < 0;
+    }
+
+    // ── Bouton Aller ──────────────────────────────────────────────────────
+    navBtn.addEventListener('click', function () {
+        navigate(urlInput.value.trim());
+    });
+
+    urlInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') navigate(urlInput.value.trim());
+    });
+
+    // ── Retour ────────────────────────────────────────────────────────────
+    backBtn.addEventListener('click', function () {
+        if (historyPos > 0) {
+            historyPos--;
+            var url    = navHistory[historyPos];
+            frame.src  = proxyUrl(url);
+            urlInput.value = url;
+            updateNav();
+        }
+    });
+
+    // ── Avant ─────────────────────────────────────────────────────────────
+    fwdBtn.addEventListener('click', function () {
+        if (historyPos < navHistory.length - 1) {
+            historyPos++;
+            var url    = navHistory[historyPos];
+            frame.src  = proxyUrl(url);
+            urlInput.value = url;
+            updateNav();
+        }
+    });
+
+    // ── Recharger ─────────────────────────────────────────────────────────
+    reloadBtn.addEventListener('click', function () {
+        if (historyPos >= 0) {
+            frame.src = proxyUrl(navHistory[historyPos]);
+        }
+    });
+
+    // ── Chargement initial ────────────────────────────────────────────────
+    navigate('https://www.wikipedia.org');
+});document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('proxy-btn');
     const input = document.getElementById('proxy-url');
     const frame = document.getElementById('proxy-frame');

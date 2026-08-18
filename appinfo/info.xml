@@ -2,8 +2,8 @@
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.nextcloud.com/info.xsd">
     <id>https_proxy</id>
     <name>HTTPS Proxy</name>
-    <summary>Proxy HTTPS pour Nextcloud</summary>
-    <version>1.2.8</version>
+    <summary>Proxy HTTPS Man-in-the-Middle pour Nextcloud</summary>
+    <version>1.3.0</version>
     <licence>agpl</licence>
     <author>Artifacto</author>
     <category>tools</category>
